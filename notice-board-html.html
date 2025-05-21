@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablica Ogłoszeń</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-bullhorn"></i> Tablica Ogłoszeń</h1>
+            <button id="addNoticeBtn" class="btn btn-primary">Dodaj ogłoszenie</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="categories">
+            <ul>
+                <li class="active" data-category="all">Wszystkie</li>
+                <li data-category="praca">Praca</li>
+                <li data-category="sprzedaz">Sprzedaż</li>
+                <li data-category="uslugi">Usługi</li>
+                <li data-category="mieszkania">Mieszkania</li>
+                <li data-category="rozne">Różne</li>
+            </ul>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Szukaj ogłoszeń...">
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="notice-board" id="noticeBoard">
+            <!-- Ogłoszenia będą dodawane dynamicznie przez JavaScript -->
+        </div>
+    </main>
+
+    <!-- Modal do dodawania ogłoszeń -->
+    <div id="noticeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Dodaj nowe ogłoszenie</h2>
+            <form id="noticeForm">
+                <div class="form-group">
+                    <label for="noticeTitle">Tytuł:</label>
+                    <input type="text" id="noticeTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noticeCategory">Kategoria:</label>
+                    <select id="noticeCategory" required>
+                        <option value="praca">Praca</option>
+                        <option value="sprzedaz">Sprzedaż</option>
+                        <option value="uslugi">Usługi</option>
+                        <option value="mieszkania">Mieszkania</option>
+                        <option value="rozne">Różne</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noticeContent">Treść ogłoszenia:</label>
+                    <textarea id="noticeContent" rows="5" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noticeContact">Kontakt:</label>
+                    <input type="text" id="noticeContact" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noticeExpiry">Data wygaśnięcia:</label>
+                    <input type="date" id="noticeExpiry" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Dodaj ogłoszenie</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Tablica Ogłoszeń - Wszystkie prawa zastrzeżone</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
