@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły Nieruchomości - Portal Nieruchomości</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Potencjalnie osobny plik CSS dla strony szczegółów: <link rel="stylesheet" href="details.css"> -->
+    <style>
+        /* Dodatkowe style specyficzne dla strony szczegółów, jeśli potrzebne szybko */
+        body { background-color: #f4f7f6; }
+        .details-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .details-header {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .details-header h1 {
+            font-size: 28px;
+            color: #1A2B3C;
+            margin-bottom: 10px;
+        }
+        .details-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00857E;
+            margin-bottom: 15px;
+        }
+        .details-location {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .details-location i {
+            margin-right: 8px;
+        }
+        .details-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .details-section {
+            margin-bottom: 25px;
+        }
+        .details-section h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #00857E;
+        }
+        .details-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .details-info-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .details-info-item strong {
+            display: block;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .details-description p {
+            line-height: 1.7;
+            color: #444;
+        }
+        .back-link-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .back-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #00857E;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            background-color: #006A65;
+        }
+        .additional-info-placeholder {
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="index.html" style="color: #2c3e50; text-decoration: none;"><i class="fas fa-home"></i> Sprzedam Bezpośrednio</a></h1>
+            <!-- Można dodać przycisk "Dodaj ofertę" jeśli jest potrzebny również tutaj -->
+        </div>
+    </header>
+
+    <main>
+        <div class="details-container" id="propertyDetailsContainer">
+            <!-- Dane nieruchomości będą wstrzykiwane tutaj przez JavaScript -->
+            <div class="details-header">
+                <h1 id="detailsTitle">Ładowanie tytułu...</h1>
+                <div id="detailsPrice" class="details-price">Ładowanie ceny...</div>
+                <div id="detailsLocation" class="details-location"><i class="fas fa-map-marker-alt"></i> Ładowanie lokalizacji...</div>
+            </div>
+
+            <img src="images/placeholder.jpg" alt="Zdjęcie nieruchomości" id="detailsImage" class="details-image">
+
+            <div class="details-section details-info">
+                <h2>Podstawowe informacje</h2>
+                <div class="details-info-grid">
+                    <div class="details-info-item"><strong>Typ oferty:</strong> <span id="detailsCategory"></span></div>
+                    <div class="details-info-item"><strong>Typ nieruchomości:</strong> <span id="detailsPropertyType"></span></div>
+                    <div class="details-info-item"><strong>Powierzchnia:</strong> <span id="detailsArea"></span> m²</div>
+                    <div class="details-info-item"><strong>Liczba pokoi:</strong> <span id="detailsRooms"></span></div>
+                    <div class="details-info-item"><strong>Cena za m²:</strong> <span id="detailsPricePerSqM"></span> zł/m²</div>
+                    <div class="details-info-item"><strong>Data dodania:</strong> <span id="detailsDateAdded"></span></div>
+                    <div class="details-info-item"><strong>Data wygaśnięcia:</strong> <span id="detailsExpiryDate"></span></div>
+                </div>
+            </div>
+
+            <div class="details-section details-description">
+                <h2>Opis nieruchomości</h2>
+                <p id="detailsContent">Ładowanie opisu...</p>
+            </div>
+            
+            <div class="details-section details-contact">
+                <h2>Kontakt</h2>
+                <p id="detailsContact">Ładowanie danych kontaktowych...</p>
+            </div>
+
+            <div class="details-section additional-information">
+                <h2>Dodatkowe informacje</h2>
+                <div class="additional-info-placeholder">
+                    (Miejsce na dodatkowe informacje o nieruchomości)
+                </div>
+            </div>
+            
+            <div class="back-link-container">
+                <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Powrót do listy ofert</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Portal Nieruchomości - Wszystkie prawa zastrzeżone</p>
+        </div>
+    </footer>
+
+    <script src="details.js"></script>
+</body>
+</html>

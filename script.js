@@ -120,6 +120,7 @@ function displayProperties(propertiesArray) {
         const propertyElement = document.createElement('div');
         propertyElement.className = 'property';
         propertyElement.dataset.category = property.category;
+        propertyElement.dataset.id = property.id; // Add property ID
         
         // Sprawdzenie czy oferta wygasła
         const today = new Date();
@@ -177,6 +178,11 @@ function displayProperties(propertiesArray) {
                 </div>
             </div>
         `;
+        
+        // Add click event listener to redirect to details page
+        propertyElement.addEventListener('click', () => {
+            window.location.href = `details.html?id=${property.id}`;
+        });
         
         propertyBoard.appendChild(propertyElement);
     });
