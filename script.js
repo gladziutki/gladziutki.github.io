@@ -1,16 +1,51 @@
 // --- BEGIN AUTHENTICATION AND USER MANAGEMENT ---
 
-// User data (in a real app, this would come from a backend)
-const users = [
-    { id: 1, username: 'admin1', password: 'password', isAdmin: true },
-    { id: 2, username: 'admin2', password: 'password', isAdmin: true },
-    { id: 3, username: 'user1', password: 'password', isAdmin: false },
-    { id: 4, username: 'user2', password: 'password', isAdmin: false }
-];
-
+const USERS_STORAGE_KEY = 'portalUsers';
 const AUTH_STORAGE_KEY = 'loggedInUser';
 
+let users = []; // Will be loaded from localStorage
+
+// Default users if localStorage is empty
+const defaultUsers = [
+    { id: 1, username: 'admin1', password: 'password', role: 'admin' },
+    { id: 2, username: 'admin2', password: 'password', role: 'admin' },
+    { id: 3, username: 'user1', password: 'password', role: 'user' },
+    { id: 4, username: 'user2', password: 'password', role: 'user' }
+];
+
+function loadUsers() {
+    const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
+    if (storedUsers) {
+        try {
+            users = JSON.parse(storedUsers);
+            if (!users || users.length === 0) { // Handle empty or corrupted storage
+                users = [...defaultUsers];
+                saveUsers();
+            }
+        } catch (e) {
+            console.error("Error parsing users from localStorage:", e);
+            users = [...defaultUsers]; // Fallback to default
+            saveUsers();
+        }
+    } else {
+        users = [...defaultUsers];
+        saveUsers();
+    }
+}
+
+function saveUsers() {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+}
+
+function generateUserId() {
+    if (users.length === 0) {
+        return 1;
+    }
+    return Math.max(...users.map(u => u.id)) + 1;
+}
+
 function login(username, password) {
+    loadUsers(); // Ensure users are loaded
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
@@ -21,7 +56,6 @@ function login(username, password) {
 
 function logout() {
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    // Always redirect to index.html on logout, which will then update its UI
     window.location.href = 'index.html';
 }
 
@@ -31,78 +65,69 @@ function getCurrentUser() {
 }
 
 function getAllUsers() {
-    // In a real app, ensure only admins can call this or it's on a secure endpoint
+    loadUsers(); // Ensure users are loaded before returning
     return users;
 }
 
 function displayUserInfo() {
     const currentUser = getCurrentUser();
-    const userInfoDiv = document.getElementById('userInfo'); // For index.html header
-    const userInfoAdminDiv = document.getElementById('userInfoAdmin'); // For admin.html header
-    
-    // Elements on index.html that change based on login state
+    const userInfoDiv = document.getElementById('userInfo');
+    const userInfoAdminDiv = document.getElementById('userInfoAdmin');
     const addNoticeBtnElement = document.getElementById('addNoticeBtn');
     const adminLinkElement = document.getElementById('adminLink');
 
     if (currentUser) {
-        // Logged IN state
         const welcomeMessage = `Witaj, <span>${currentUser.username}</span>!`;
         const logoutButtonHTML = `<button onclick="logout()" class="btn btn-secondary">Wyloguj</button>`;
 
-        if (userInfoDiv) { // Handling for index.html header
+        if (userInfoDiv) {
             userInfoDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
-            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'inline-block'; // Show "Dodaj ofertę"
-            if (adminLinkElement) { // Show/Hide "Panel Admina"
-                adminLinkElement.style.display = currentUser.isAdmin ? 'inline-block' : 'none';
+            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'inline-block';
+            if (adminLinkElement) {
+                adminLinkElement.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
             }
         }
-        if (userInfoAdminDiv) { // Handling for admin.html header
+        if (userInfoAdminDiv) {
             userInfoAdminDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
         }
-    } else { 
-        // Logged OUT state
-        if (userInfoDiv) { // Handling for index.html header
+    } else {
+        if (userInfoDiv) {
             userInfoDiv.innerHTML = `<button id="showLoginModalBtn" class="btn btn-primary">Zaloguj się</button>`;
-            // Add event listener for the dynamically created login button
             const newLoginBtn = document.getElementById('showLoginModalBtn');
             if (newLoginBtn) {
                 newLoginBtn.addEventListener('click', () => {
-                    const loginModal = document.getElementById('loginModal'); // The new modal on index.html
+                    const loginModal = document.getElementById('loginModal');
                     if (loginModal) loginModal.style.display = 'block';
                 });
             }
-            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'none'; // Hide "Dodaj ofertę"
-            if (adminLinkElement) adminLinkElement.style.display = 'none'; // Hide "Panel Admina"
+            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'none';
+            if (adminLinkElement) adminLinkElement.style.display = 'none';
         }
-        if (userInfoAdminDiv) { // For admin.html (user should be redirected anyway)
+        if (userInfoAdminDiv) {
             userInfoAdminDiv.innerHTML = '';
         }
     }
 }
 
 function checkAuth() {
+    loadUsers(); // Ensure users are loaded for auth checks
     const currentUser = getCurrentUser();
-    // Get current page filename, default to 'index.html' if path is '/' or empty
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html'; 
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
-    // If trying to access admin.html
     if (currentPage === 'admin.html') {
-        if (!currentUser || !currentUser.isAdmin) {
-            window.location.href = 'index.html'; // Redirect to index, login will be prompted there if needed
-            return false; // Stop further script execution
+        if (!currentUser || currentUser.role !== 'admin') {
+            window.location.href = 'index.html';
+            return false;
         }
     }
 
-    // If logged in and on the (now obsolete) login.html, redirect to index.html
-    if (currentUser && currentPage === 'login.html') {
+    if (currentUser && currentPage === 'login.html') { // Obsolete login.html
         window.location.href = 'index.html';
-        return false; // Stop further script execution
+        return false;
     }
     
-    // For all pages (including index.html, whether logged in or not), update the UI.
-    // displayUserInfo will handle showing login button or user info.
     displayUserInfo();
-    return true; 
+    return true;
 }
 
 // --- END AUTHENTICATION AND USER MANAGEMENT ---
@@ -264,6 +289,7 @@ const roomCountFilter = document.getElementById('roomCount');
 
 // Wyświetlanie nieruchomości
 function displayProperties(propertiesArray) {
+    if (!propertyBoard) return; // Guard clause if propertyBoard is not on the page
     propertyBoard.innerHTML = '';
     
     if (propertiesArray.length === 0) {
@@ -277,7 +303,6 @@ function displayProperties(propertiesArray) {
         propertyElement.dataset.category = property.category;
         propertyElement.dataset.id = property.id; // Add property ID
         
-        // Sprawdzenie czy oferta wygasła
         const today = new Date();
         const expiryDate = new Date(property.expiry);
         const isExpired = today > expiryDate;
@@ -286,7 +311,6 @@ function displayProperties(propertiesArray) {
             propertyElement.classList.add('expired');
         }
         
-        // Formatowanie ceny
         const formattedPrice = property.category === 'wynajem' 
             ? `${property.price.toLocaleString('pl-PL')} zł/miesiąc`
             : `${property.price.toLocaleString('pl-PL')} zł`;
@@ -334,7 +358,6 @@ function displayProperties(propertiesArray) {
             </div>
         `;
         
-        // Add click event listener to redirect to details page
         propertyElement.addEventListener('click', () => {
             window.location.href = `details.html?id=${property.id}`;
         });
@@ -343,24 +366,20 @@ function displayProperties(propertiesArray) {
     });
 }
 
-// Formatowanie daty
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', options);
 }
 
-// Pobranie nazwy kategorii
 function getCategoryName(categorySlug) {
     const categories = {
         'sprzedaz': 'Sprzedaż',
         'wynajem': 'Wynajem'
     };
-    
     return categories[categorySlug] || categorySlug;
 }
 
-// Pobranie nazwy typu nieruchomości
 function getPropertyTypeName(typeSlug) {
     const types = {
         'mieszkanie': 'Mieszkanie',
@@ -369,11 +388,9 @@ function getPropertyTypeName(typeSlug) {
         'lokal': 'Lokal',
         'garaz': 'Garaż'
     };
-    
     return types[typeSlug] || typeSlug;
 }
 
-// Obsługa dodawania nowej oferty
 function addNewProperty(e) {
     e.preventDefault();
     
@@ -394,168 +411,121 @@ function addNewProperty(e) {
     };
 
     const getNextId = () => {
-        if (properties.length === 0) {
-            return 1;
-        }
+        if (properties.length === 0) return 1;
         return Math.max(...properties.map(p => p.id)) + 1;
     };
 
-    const createPropertyObject = (imageUrl) => {
-        return {
-            id: getNextId(),
-            title,
-            category,
-            propertyType, // This is the propertyType from the form
-            price,
-            area,
-            rooms,
-            location,
-            content,
-            contact,
-            date: new Date().toISOString().split('T')[0],
-            expiry,
-            imageUrl: imageUrl
-        };
-    };
+    const createPropertyObject = (imageUrl) => ({
+        id: getNextId(), title, category, propertyType, price, area, rooms,
+        location, content, contact,
+        date: new Date().toISOString().split('T')[0],
+        expiry, imageUrl
+    });
 
     const finalizePropertyAddition = (property) => {
-        properties.unshift(property); // Dodaj na początek tablicy
-        localStorage.setItem('propertyListings', JSON.stringify(properties)); // Zapisz w localStorage
-        applyFilters();
-        propertyModal.style.display = 'none';
-        propertyForm.reset();
+        properties.unshift(property);
+        localStorage.setItem('propertyListings', JSON.stringify(properties));
+        if (typeof applyFilters === 'function') applyFilters(); // Check if applyFilters exists
+        if (propertyModal) propertyModal.style.display = 'none';
+        if (propertyForm) propertyForm.reset();
         alert('Oferta została dodana pomyślnie!');
     };
 
     if (imageFile) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const newProperty = createPropertyObject(e.target.result); // Use uploaded image
-            finalizePropertyAddition(newProperty);
+            finalizePropertyAddition(createPropertyObject(e.target.result));
         }
         reader.readAsDataURL(imageFile);
     } else {
-        const newProperty = createPropertyObject(getDefaultImageUrl(propertyType)); // Use default based on propertyType
-        finalizePropertyAddition(newProperty);
+        finalizePropertyAddition(createPropertyObject(getDefaultImageUrl(propertyType)));
     }
 }
 
-// Filtrowanie nieruchomości według kategorii
-function filterByCategory(category) {
-    if (category === 'all') {
-        return properties;
-    } else {
-        return properties.filter(property => property.category === category);
-    }
+function filterByCategory(propertiesArray, category) {
+    if (category === 'all') return propertiesArray;
+    return propertiesArray.filter(property => property.category === category);
 }
 
-// Filtrowanie według typu nieruchomości
 function filterByPropertyType(propertiesArray, type) {
-    if (type === 'all') {
-        return propertiesArray;
-    }
+    if (type === 'all') return propertiesArray;
     return propertiesArray.filter(property => property.propertyType === type);
 }
 
-// Filtrowanie według ceny
 function filterByPrice(propertiesArray, priceRange) {
-    if (priceRange === 'all') {
-        return propertiesArray;
-    }
-    
+    if (priceRange === 'all') return propertiesArray;
     const [min, max] = priceRange.split('-').map(Number);
-    return propertiesArray.filter(property => 
-        property.price >= min && property.price <= max
-    );
+    return propertiesArray.filter(property => property.price >= min && property.price <= max);
 }
 
-// Filtrowanie według liczby pokoi
 function filterByRooms(propertiesArray, roomCount) {
-    if (roomCount === 'all') {
-        return propertiesArray;
-    }
-    
-    if (roomCount === '5+') {
-        return propertiesArray.filter(property => property.rooms >= 5);
-    }
-    
+    if (roomCount === 'all') return propertiesArray;
+    if (roomCount === '5+') return propertiesArray.filter(property => property.rooms >= 5);
     return propertiesArray.filter(property => property.rooms === parseInt(roomCount));
 }
 
-// Zastosowanie wszystkich filtrów
 function applyFilters() {
-    const activeCategory = document.querySelector('.categories li.active').dataset.category;
-    const selectedPropertyType = propertyTypeFilter.value;
-    const selectedPriceRange = priceRangeFilter.value;
-    const selectedRoomCount = roomCountFilter.value;
+    const activeCategoryElement = document.querySelector('.categories li.active');
+    if (!activeCategoryElement) return; // Guard if no active category
+    const activeCategory = activeCategoryElement.dataset.category;
     
-    let filteredProperties = filterByCategory(activeCategory);
+    const selectedPropertyType = propertyTypeFilter ? propertyTypeFilter.value : 'all';
+    const selectedPriceRange = priceRangeFilter ? priceRangeFilter.value : 'all';
+    const selectedRoomCount = roomCountFilter ? roomCountFilter.value : 'all';
+    
+    let filteredProperties = filterByCategory(properties, activeCategory); // Start with all properties
     filteredProperties = filterByPropertyType(filteredProperties, selectedPropertyType);
-    
     if (selectedPriceRange !== 'all') {
         filteredProperties = filterByPrice(filteredProperties, selectedPriceRange);
     }
-    
     if (selectedRoomCount !== 'all') {
         filteredProperties = filterByRooms(filteredProperties, selectedRoomCount);
     }
-    
     displayProperties(filteredProperties);
 }
 
-// Wyszukiwanie nieruchomości
 function searchProperties() {
-    const searchTerm = searchInput.value.toLowerCase();
-    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
     if (searchTerm.trim() === '') {
-        applyFilters();
+        if (typeof applyFilters === 'function') applyFilters();
         return;
     }
-    
-    const searchResults = properties.filter(property => {
-        return (
-            property.title.toLowerCase().includes(searchTerm) ||
-            property.content.toLowerCase().includes(searchTerm) ||
-            property.location.toLowerCase().includes(searchTerm) ||
-            getPropertyTypeName(property.propertyType).toLowerCase().includes(searchTerm)
-        );
-    });
-    
+    const searchResults = properties.filter(property =>
+        property.title.toLowerCase().includes(searchTerm) ||
+        property.content.toLowerCase().includes(searchTerm) ||
+        property.location.toLowerCase().includes(searchTerm) ||
+        getPropertyTypeName(property.propertyType).toLowerCase().includes(searchTerm)
+    );
     displayProperties(searchResults);
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    const authPassed = checkAuth(); // Perform auth check first
-    if (!authPassed) return; // If auth check redirects, stop further processing
+    const authPassed = checkAuth();
+    if (!authPassed) return;
 
-    loadComments(); // Load comments on DOMContentLoaded
+    loadComments();
 
-    // Handle login form submission (now in a modal on index.html)
-    const loginFormInModal = document.getElementById('loginFormInModal'); // ID of form in the new modal
+    const loginFormInModal = document.getElementById('loginFormInModal');
     if (loginFormInModal) {
         loginFormInModal.addEventListener('submit', (e) => {
             e.preventDefault();
             const username = e.target.username.value;
             const password = e.target.password.value;
             const user = login(username, password);
-            const errorMessageDiv = document.getElementById('loginModalErrorMessage'); // Error message div in modal
-            
+            const errorMessageDiv = document.getElementById('loginModalErrorMessage');
             if (user) {
-                if(errorMessageDiv) errorMessageDiv.textContent = '';
+                if (errorMessageDiv) errorMessageDiv.textContent = '';
                 const loginModal = document.getElementById('loginModal');
-                if (loginModal) loginModal.style.display = 'none'; // Close modal
-                displayUserInfo(); // Refresh header UI
-                // No redirect needed if already on index.html, UI updates handle it.
+                if (loginModal) loginModal.style.display = 'none';
+                displayUserInfo();
             } else {
-                if(errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
+                if (errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
             }
         });
     }
 
-    // Logic for the old login.html page (can be removed if login.html is deleted)
-    const oldLoginForm = document.getElementById('loginForm'); // This is the ID from the original login.html
-    if (oldLoginForm && window.location.pathname.endsWith('login.html')) { // Only run if on login.html
+    const oldLoginForm = document.getElementById('loginForm');
+    if (oldLoginForm && window.location.pathname.endsWith('login.html')) {
         oldLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const username = e.target.username.value;
@@ -563,125 +533,280 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = login(username, password);
             const errorMessageDiv = document.getElementById('loginErrorMessage');
             if (user) {
-                if(errorMessageDiv) errorMessageDiv.textContent = '';
-                window.location.href = 'index.html'; 
+                if (errorMessageDiv) errorMessageDiv.textContent = '';
+                window.location.href = 'index.html';
             } else {
-                if(errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
+                if (errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
             }
         });
     }
 
-    // Handle admin page logic on admin.html
-    const adminPanelContainer = document.getElementById('adminPanelContainer');
-    const accessDeniedMessage = document.getElementById('accessDeniedMessage');
-    const userListTableBody = document.getElementById('userListTableBody');
-
     if (window.location.pathname.endsWith('admin.html')) {
-        const currentUser = getCurrentUser();
-        if (currentUser && currentUser.isAdmin) {
-            if (adminPanelContainer) adminPanelContainer.style.display = 'block';
-            if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
-            
-            if (userListTableBody) {
-                const allUsers = getAllUsers();
-                userListTableBody.innerHTML = ''; // Clear existing rows
-                allUsers.forEach(user => {
-                    const row = userListTableBody.insertRow();
-                    row.insertCell().textContent = user.username;
-                    const roleCell = row.insertCell();
-                    roleCell.textContent = user.isAdmin ? 'Administrator' : 'Użytkownik';
-                    roleCell.className = user.isAdmin ? 'role-admin' : 'role-user';
-                    row.insertCell().textContent = user.id;
-                });
-            }
-        } else {
-            if (adminPanelContainer) adminPanelContainer.style.display = 'none';
-            if (accessDeniedMessage) accessDeniedMessage.style.display = 'block';
-            // Optional: redirect to login if not admin, handled by checkAuth already
-            // if (!currentUser) window.location.href = 'login.html';
-        }
+        setupAdminPage();
     }
 
-
-    // Wczytaj nieruchomości z localStorage lub użyj domyślnych
-    // This part only runs if on a page that needs properties (e.g., index.html)
+    // Wczytaj nieruchomości z localStorage lub użyj domyślnych (tylko na stronach z propertyBoard)
     const propertyBoardElement = document.getElementById('propertyBoard');
-    if (propertyBoardElement) { // Check if propertyBoard exists on the current page
+    if (propertyBoardElement) {
         const storedProperties = localStorage.getItem('propertyListings');
-    if (storedProperties) {
-        try {
-            properties = JSON.parse(storedProperties);
-            // Ensure IDs are correctly set if we load from localStorage, especially if it was empty or corrupted
-            if (!properties || properties.length === 0) {
+        if (storedProperties) {
+            try {
+                properties = JSON.parse(storedProperties);
+                if (!properties || properties.length === 0) {
+                    properties = [...defaultProperties];
+                    localStorage.setItem('propertyListings', JSON.stringify(properties));
+                }
+            } catch (e) {
+                console.error("Error parsing properties from localStorage:", e);
                 properties = [...defaultProperties];
                 localStorage.setItem('propertyListings', JSON.stringify(properties));
             }
-        } catch (e) {
-            console.error("Error parsing properties from localStorage:", e);
-            properties = [...defaultProperties]; // Fallback to default
+        } else {
+            properties = [...defaultProperties];
             localStorage.setItem('propertyListings', JSON.stringify(properties));
         }
-    } else {
-        properties = [...defaultProperties];
-        localStorage.setItem('propertyListings', JSON.stringify(properties));
-    }
-
-        // Wyświetl wszystkie nieruchomości na start
-        displayProperties(properties);
+        displayProperties(properties); // Wyświetl nieruchomości
     }
     
-    // Ustaw minimalną datę dla pola wyboru daty wygaśnięcia
+    // Ustaw minimalną datę dla pola wyboru daty wygaśnięcia (tylko na stronach z propertyExpiry)
     const propertyExpiryInput = document.getElementById('propertyExpiry');
     if (propertyExpiryInput) {
         const today = new Date().toISOString().split('T')[0];
         propertyExpiryInput.min = today;
     }
-});
 
-// Obsługa modala - ensure these elements exist before adding listeners
-if (addNoticeBtn) {
-    addNoticeBtn.addEventListener('click', () => {
-        propertyModal.style.display = 'block';
-    });
-}
-
-if (closeModal) {
-    closeModal.addEventListener('click', () => {
-        propertyModal.style.display = 'none';
-    });
-}
-
-window.addEventListener('click', (e) => {
-    if (propertyModal && e.target === propertyModal) {
-        propertyModal.style.display = 'none';
-    }
-});
-
-// Obsługa formularza - ensure this element exists
-if (propertyForm) {
-    propertyForm.addEventListener('submit', addNewProperty);
-}
-
-// Obsługa wyszukiwania
-searchBtn.addEventListener('click', searchProperties);
-searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-        searchProperties();
-    }
-});
-
-// Obsługa kategorii - ensure these elements exist
-if (categoryLinks && categoryLinks.length > 0) {
-    categoryLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            categoryLinks.forEach(cat => cat.classList.remove('active'));
-            link.classList.add('active');
-            applyFilters();
+    // Obsługa modala
+    if (addNoticeBtn && propertyModal) {
+        addNoticeBtn.addEventListener('click', () => {
+            propertyModal.style.display = 'block';
         });
+    }
+    if (closeModal && propertyModal) {
+        closeModal.addEventListener('click', () => {
+            propertyModal.style.display = 'none';
+        });
+    }
+    window.addEventListener('click', (e) => {
+        if (propertyModal && e.target === propertyModal) {
+            propertyModal.style.display = 'none';
+        }
+    });
+
+    // Obsługa formularza dodawania oferty
+    if (propertyForm) {
+        propertyForm.addEventListener('submit', addNewProperty);
+    }
+
+    // Obsługa wyszukiwania
+    if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', searchProperties);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchProperties();
+            }
+        });
+    }
+
+    // Obsługa kategorii
+    if (categoryLinks && categoryLinks.length > 0) {
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                categoryLinks.forEach(cat => cat.classList.remove('active'));
+                link.classList.add('active');
+                if (typeof applyFilters === 'function') applyFilters();
+            });
+        });
+    }
+
+    // Obsługa filtrów
+    if (propertyTypeFilter) propertyTypeFilter.addEventListener('change', applyFilters);
+    if (priceRangeFilter) priceRangeFilter.addEventListener('change', applyFilters);
+    if (roomCountFilter) roomCountFilter.addEventListener('change', applyFilters);
+});
+
+// Funkcje specyficzne dla panelu admina
+function setupAdminPage() {
+    const adminPanelContainer = document.getElementById('adminPanelContainer');
+    const accessDeniedMessage = document.getElementById('accessDeniedMessage');
+    const userListTableBody = document.getElementById('userListTableBody');
+    const showAddUserFormBtn = document.getElementById('showAddUserFormBtn');
+    const userFormContainer = document.getElementById('userFormContainer');
+    const userForm = document.getElementById('userForm');
+    const userFormTitle = document.getElementById('userFormTitle');
+    const cancelUserFormBtn = document.getElementById('cancelUserFormBtn');
+    const userIdInput = document.getElementById('userId');
+    const passwordInput = document.getElementById('password'); // Reference to password input
+
+    const currentUser = getCurrentUser();
+
+    if (currentUser && currentUser.role === 'admin') {
+        if (adminPanelContainer) adminPanelContainer.style.display = 'block';
+        if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+        
+        renderUserTable();
+
+        if (showAddUserFormBtn) {
+            showAddUserFormBtn.addEventListener('click', () => {
+                if(userForm) userForm.reset();
+                if(userIdInput) userIdInput.value = '';
+                if(passwordInput) passwordInput.required = true; // Password required for new user
+                if(passwordInput) passwordInput.placeholder = ''; // Reset placeholder
+                if(userFormTitle) userFormTitle.textContent = 'Dodaj Nowego Użytkownika';
+                if (userFormContainer) userFormContainer.style.display = 'block';
+            });
+        }
+
+        if (cancelUserFormBtn) {
+            cancelUserFormBtn.addEventListener('click', () => {
+                if (userFormContainer) userFormContainer.style.display = 'none';
+                if(userForm) userForm.reset();
+            });
+        }
+
+        if (userForm) {
+            userForm.addEventListener('submit', handleUserFormSubmit);
+        }
+
+        if (userListTableBody) {
+            userListTableBody.addEventListener('click', (event) => {
+                const target = event.target.closest('button'); // Get the button itself if clicked on icon
+                if (!target) return;
+
+                if (target.classList.contains('edit-user-btn')) {
+                    const userIdToEdit = target.dataset.userid;
+                    handleEditUser(userIdToEdit);
+                } else if (target.classList.contains('delete-user-btn')) {
+                    const userIdToDelete = target.dataset.userid;
+                    handleDeleteUser(userIdToDelete);
+                }
+            });
+        }
+    } else {
+        if (adminPanelContainer) adminPanelContainer.style.display = 'none';
+        if (accessDeniedMessage) accessDeniedMessage.style.display = 'block';
+    }
+}
+
+function renderUserTable() {
+    const userListTableBody = document.getElementById('userListTableBody');
+    if (!userListTableBody) return;
+
+    loadUsers();
+    userListTableBody.innerHTML = '';
+
+    users.forEach(user => {
+        const row = userListTableBody.insertRow();
+        row.insertCell().textContent = user.username;
+        
+        const roleCell = row.insertCell();
+        roleCell.textContent = user.role === 'admin' ? 'Administrator' : 'Użytkownik';
+        roleCell.className = user.role === 'admin' ? 'role-admin' : 'role-user';
+        
+        row.insertCell().textContent = user.id;
+
+        const actionsCell = row.insertCell();
+        actionsCell.innerHTML = `
+            <button class="btn btn-sm btn-warning edit-user-btn" data-userid="${user.id}"><i class="fas fa-edit"></i> Edytuj</button>
+            <button class="btn btn-sm btn-danger delete-user-btn" data-userid="${user.id}" style="margin-left: 5px;"><i class="fas fa-trash"></i> Usuń</button>
+        `;
     });
 }
 
-// Obsługa filtrów - ensure these elements exist
-if (propertyTypeFilter) propertyTypeFilter.addEventListener('change', applyFilters);
-if (priceRangeFilter) priceRangeFilter.addEventListener('change', applyFilters);
-if (roomCountFilter) roomCountFilter.addEventListener('change', applyFilters);
+function handleUserFormSubmit(event) {
+    event.preventDefault();
+    const userIdToEdit = document.getElementById('userId').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
+
+    if (!username) {
+        alert('Nazwa użytkownika jest wymagana.');
+        return;
+    }
+
+    loadUsers();
+
+    if (userIdToEdit) { // Editing
+        const userIndex = users.findIndex(u => u.id === parseInt(userIdToEdit));
+        if (userIndex > -1) {
+            if (users.some(u => u.username === username && u.id !== parseInt(userIdToEdit))) {
+                alert('Ta nazwa użytkownika jest już zajęta.');
+                return;
+            }
+            users[userIndex].username = username;
+            if (password) {
+                users[userIndex].password = password;
+            }
+            users[userIndex].role = role;
+            alert('Użytkownik zaktualizowany pomyślnie.');
+        }
+    } else { // Adding new
+        if (!password) {
+            alert('Hasło jest wymagane dla nowego użytkownika.');
+            return;
+        }
+        if (users.some(u => u.username === username)) {
+            alert('Ta nazwa użytkownika jest już zajęta.');
+            return;
+        }
+        const newUser = {
+            id: generateUserId(),
+            username: username,
+            password: password,
+            role: role
+        };
+        users.push(newUser);
+        alert('Użytkownik dodany pomyślnie.');
+    }
+
+    saveUsers();
+    renderUserTable();
+    const userFormContainer = document.getElementById('userFormContainer');
+    if(userFormContainer) userFormContainer.style.display = 'none';
+    const userForm = document.getElementById('userForm');
+    if(userForm) userForm.reset();
+}
+
+function handleEditUser(userIdString) {
+    const userId = parseInt(userIdString);
+    loadUsers();
+    const userToEdit = users.find(u => u.id === userId);
+
+    if (userToEdit) {
+        const userFormTitle = document.getElementById('userFormTitle');
+        const userIdInput = document.getElementById('userId');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const roleSelect = document.getElementById('role');
+        const userFormContainer = document.getElementById('userFormContainer');
+
+        if(userFormTitle) userFormTitle.textContent = 'Edytuj Użytkownika';
+        if(userIdInput) userIdInput.value = userToEdit.id;
+        if(usernameInput) usernameInput.value = userToEdit.username;
+        if(passwordInput) {
+            passwordInput.value = '';
+            passwordInput.required = false;
+            passwordInput.placeholder = 'Pozostaw puste, aby nie zmieniać';
+        }
+        if(roleSelect) roleSelect.value = userToEdit.role;
+        if(userFormContainer) userFormContainer.style.display = 'block';
+    }
+}
+
+function handleDeleteUser(userIdString) {
+    const userId = parseInt(userIdString);
+    const currentUser = getCurrentUser();
+
+    if (currentUser && currentUser.id === userId) {
+        alert("Nie możesz usunąć samego siebie.");
+        return;
+    }
+
+    if (confirm('Czy na pewno chcesz usunąć tego użytkownika? Tej operacji nie można cofnąć.')) {
+        loadUsers();
+        users = users.filter(u => u.id !== userId);
+        saveUsers();
+        renderUserTable();
+        alert('Użytkownik usunięty.');
+    }
+}
