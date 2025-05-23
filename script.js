@@ -78,17 +78,18 @@ function displayUserInfo() {
 
     if (currentUser) {
         const welcomeMessage = `Witaj, <span>${currentUser.username}</span>!`;
-        const logoutButtonHTML = `<button onclick="logout()" class="btn btn-secondary">Wyloguj</button>`;
+        const logoutLinkHTML = `<a href="#" onclick="logout(); return false;" class="logout-link" style="margin-left: 15px; font-size: 13px; color: #007bff; text-decoration: none;">Wyloguj</a>`;
 
         if (userInfoDiv) {
-            userInfoDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
+            userInfoDiv.innerHTML = `${welcomeMessage} ${logoutLinkHTML}`;
             if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'inline-block';
             if (adminLinkElement) {
                 adminLinkElement.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
             }
         }
         if (userInfoAdminDiv) {
-            userInfoAdminDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
+            // For admin page, ensure the link is styled similarly or as requested
+            userInfoAdminDiv.innerHTML = `${welcomeMessage} <a href="#" onclick="logout(); return false;" class="logout-link-admin" style="margin-left: 15px; font-size: 14px; color: #dc3545; text-decoration: none;">Wyloguj</a>`;
         }
     } else {
         if (userInfoDiv) {

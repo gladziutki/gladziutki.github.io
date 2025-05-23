@@ -7,10 +7,25 @@
 }
 
 body {
-    background-color: #fff; /* Zmieniono na białe tło */
-    color: #333;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('images/family.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #333; /* Default text color, might need adjustment for specific sections */
     line-height: 1.6;
+    /* Ensure content area has a contrasting background if needed, or text color is light */
 }
+
+/* Add a class to the main content area if text becomes hard to read */
+.content-wrapper {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for content */
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px; /* Add some space from the top */
+    margin-bottom: 20px; /* Add some space from the bottom */
+}
+
 
 .container {
     max-width: 1200px;
@@ -20,11 +35,11 @@ body {
 
 /* Header */
 header {
-    background-color: #fff; /* Zmieniono tło nagłówka na białe */
-    color: #2c3e50; /* Zmieniono kolor tekstu nagłówka na ciemny */
+    background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white for header */
+    color: #2c3e50;
     padding: 20px 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Delikatniejszy cień */
-    border-bottom: 1px solid #e0e0e0; /* Dodano dolną krawędź */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow for better separation */
+    border-bottom: 1px solid #d0d0d0;
 }
 
 header .container {
@@ -35,44 +50,57 @@ header .container {
 
 header h1 {
     font-size: 24px;
-    color: #2c3e50; /* Upewnienie się, że tytuł jest ciemny */
+    color: #2c3e50;
 }
 
 header h1 i {
     margin-right: 10px;
-    color: #00857E; /* Nowy kolor akcentu dla ikony */
+    color: #00796B; /* Slightly darker accent */
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 15px; /* Space between user info, add button, admin button */
+    gap: 15px;
 }
 
 .user-info-header {
     font-size: 14px;
-    color: #333;
-    display: flex; /* To align items if needed, e.g., icon and text */
+    color: #2c3e50; /* Darker text for better readability on light bg */
+    display: flex;
     align-items: center;
 }
 
-.user-info-header span { /* Styling for the username */
+.user-info-header span {
     font-weight: bold;
-    color: #00857E;
+    color: #00796B;
     margin-right: 10px;
 }
 
-.user-info-header button.btn-secondary, /* Style for logout button if needed */
+.user-info-header .logout-link, /* Targeting the new logout link */
 #adminLink.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-    padding: 8px 12px; /* Smaller padding for header buttons */
-    font-size: 13px;
+    color: #007bff; /* Standard link blue, or match button style */
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 0; /* Adjust padding if it's just a link */
+}
+.user-info-header .logout-link:hover,
+#adminLink.btn-secondary:hover {
+    text-decoration: underline;
+    color: #0056b3;
 }
 
-.user-info-header button.btn-secondary:hover,
+/* Ensure admin button still looks like a button if preferred */
+#adminLink.btn-secondary {
+    background-color: #6c757d;
+    color: white !important; /* Important to override general link styles if needed */
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none !important;
+}
 #adminLink.btn-secondary:hover {
     background-color: #5a6268;
+    text-decoration: none !important;
 }
 
 
@@ -104,10 +132,10 @@ main {
 
 /* Panel kontrolny wyszukiwania (nowy) */
 .search-controls-panel {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Slightly enhanced shadow */
     margin-bottom: 30px;
 }
 
@@ -215,11 +243,12 @@ main {
 .property-board {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 25px; /* Zwiększony odstęp */
+    gap: 25px;
+    /* Properties will have their own background, so no need for a wrapper bg here if body bg is image */
 }
 
 .property {
-    background-color: #fff;
+    background-color: #ffffff; /* Solid white for property cards for readability */
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07); /* Zmieniony cień */
     padding: 20px;
