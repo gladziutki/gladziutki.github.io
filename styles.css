@@ -43,6 +43,39 @@ header h1 i {
     color: #00857E; /* Nowy kolor akcentu dla ikony */
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between user info, add button, admin button */
+}
+
+.user-info-header {
+    font-size: 14px;
+    color: #333;
+    display: flex; /* To align items if needed, e.g., icon and text */
+    align-items: center;
+}
+
+.user-info-header span { /* Styling for the username */
+    font-weight: bold;
+    color: #00857E;
+    margin-right: 10px;
+}
+
+.user-info-header button.btn-secondary, /* Style for logout button if needed */
+#adminLink.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 12px; /* Smaller padding for header buttons */
+    font-size: 13px;
+}
+
+.user-info-header button.btn-secondary:hover,
+#adminLink.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+
 /* Przyciski */
 .btn {
     padding: 10px 18px; /* Lekko zwiększony padding */
@@ -449,7 +482,30 @@ footer {
     .modal-content {
         margin: 20% auto; /* Większy margines dla mniejszych ekranów */
         padding: 20px;
-        max-width: 90%;
+    max-width: 90%;
+    }
+
+    /* Ensure login modal form elements are styled like property modal form elements */
+    #loginModal .login-form .form-group label { /* from .form-group label */
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #444;
+    }
+    #loginModal .login-form .form-group input[type="text"],
+    #loginModal .login-form .form-group input[type="password"] { /* from .form-group input[type="text"] etc. */
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+        transition: border-color 0.2s;
+    }
+    #loginModal .login-form .form-group input:focus { /* from .form-group input:focus */
+        border-color: #00857E;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 133, 126, 0.2);
     }
 }
 

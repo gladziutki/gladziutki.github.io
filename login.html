@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie - Portal Nieruchomości</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7f6; /* Slightly different background for login page */
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+        .login-container p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px; /* Reserve space for error message */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1><i class="fas fa-sign-in-alt"></i> Logowanie</h1>
+        <p>Zaloguj się, aby uzyskać dostęp do portalu.</p>
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="username">Nazwa użytkownika:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Zaloguj się</button>
+            <div id="loginErrorMessage" class="error-message"></div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // This script block will be expanded later or moved to a dedicated login.js
+        // For now, it's a placeholder for login-specific logic.
+        // The main auth functions will be in script.js
+    </script>
+</body>
+</html>

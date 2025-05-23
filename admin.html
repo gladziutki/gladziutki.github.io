@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administracyjny - Portal Nieruchomości</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles specific to admin.html, can be moved to styles.css later */
+        .admin-header {
+            background-color: #fff;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .admin-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 {
+            font-size: 22px;
+            color: #2c3e50;
+        }
+        .user-info-admin {
+            font-size: 14px;
+            color: #333;
+        }
+        .user-info-admin span {
+            font-weight: bold;
+            color: #00857E;
+        }
+        .user-info-admin button {
+            margin-left: 15px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .admin-panel-container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .admin-panel-container h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .user-table th, .user-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .user-table th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+            color: #333;
+        }
+        .user-table td .role-admin {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .user-table td .role-user {
+            color: #3498db;
+        }
+        .access-denied {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #e74c3c;
+        }
+        .access-denied a {
+            color: #00857E;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <h1><i class="fas fa-tools"></i> Panel Administracyjny</h1>
+            <div id="userInfoAdmin" class="user-info-admin">
+                <!-- User info will be populated by JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="adminPanelContainer" class="admin-panel-container" style="display: none;">
+            <h2><i class="fas fa-users-cog"></i> Zarządzanie Użytkownikami</h2>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Nazwa użytkownika</th>
+                        <th>Rola</th>
+                        <th>ID</th>
+                    </tr>
+                </thead>
+                <tbody id="userListTableBody">
+                    <!-- User list will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div id="accessDeniedMessage" class="access-denied" style="display: none;">
+            <p><i class="fas fa-exclamation-triangle"></i> Dostęp zabroniony. Tylko administratorzy mogą przeglądać tę stronę.</p>
+            <p><a href="login.html">Zaloguj się</a> jako administrator.</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Portal Nieruchomości - Panel Administracyjny</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // This script block will be expanded later or moved to a dedicated admin.js
+        // For now, it's a placeholder for admin-specific logic.
+        // The main auth functions will be in script.js
+    </script>
+</body>
+</html>

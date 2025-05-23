@@ -1,3 +1,113 @@
+// --- BEGIN AUTHENTICATION AND USER MANAGEMENT ---
+
+// User data (in a real app, this would come from a backend)
+const users = [
+    { id: 1, username: 'admin1', password: 'password', isAdmin: true },
+    { id: 2, username: 'admin2', password: 'password', isAdmin: true },
+    { id: 3, username: 'user1', password: 'password', isAdmin: false },
+    { id: 4, username: 'user2', password: 'password', isAdmin: false }
+];
+
+const AUTH_STORAGE_KEY = 'loggedInUser';
+
+function login(username, password) {
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+        return user;
+    }
+    return null;
+}
+
+function logout() {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    // Always redirect to index.html on logout, which will then update its UI
+    window.location.href = 'index.html';
+}
+
+function getCurrentUser() {
+    const userJson = localStorage.getItem(AUTH_STORAGE_KEY);
+    return userJson ? JSON.parse(userJson) : null;
+}
+
+function getAllUsers() {
+    // In a real app, ensure only admins can call this or it's on a secure endpoint
+    return users;
+}
+
+function displayUserInfo() {
+    const currentUser = getCurrentUser();
+    const userInfoDiv = document.getElementById('userInfo'); // For index.html header
+    const userInfoAdminDiv = document.getElementById('userInfoAdmin'); // For admin.html header
+    
+    // Elements on index.html that change based on login state
+    const addNoticeBtnElement = document.getElementById('addNoticeBtn');
+    const adminLinkElement = document.getElementById('adminLink');
+
+    if (currentUser) {
+        // Logged IN state
+        const welcomeMessage = `Witaj, <span>${currentUser.username}</span>!`;
+        const logoutButtonHTML = `<button onclick="logout()" class="btn btn-secondary">Wyloguj</button>`;
+
+        if (userInfoDiv) { // Handling for index.html header
+            userInfoDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
+            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'inline-block'; // Show "Dodaj ofertę"
+            if (adminLinkElement) { // Show/Hide "Panel Admina"
+                adminLinkElement.style.display = currentUser.isAdmin ? 'inline-block' : 'none';
+            }
+        }
+        if (userInfoAdminDiv) { // Handling for admin.html header
+            userInfoAdminDiv.innerHTML = `${welcomeMessage} ${logoutButtonHTML}`;
+        }
+    } else { 
+        // Logged OUT state
+        if (userInfoDiv) { // Handling for index.html header
+            userInfoDiv.innerHTML = `<button id="showLoginModalBtn" class="btn btn-primary">Zaloguj się</button>`;
+            // Add event listener for the dynamically created login button
+            const newLoginBtn = document.getElementById('showLoginModalBtn');
+            if (newLoginBtn) {
+                newLoginBtn.addEventListener('click', () => {
+                    const loginModal = document.getElementById('loginModal'); // The new modal on index.html
+                    if (loginModal) loginModal.style.display = 'block';
+                });
+            }
+            if (addNoticeBtnElement) addNoticeBtnElement.style.display = 'none'; // Hide "Dodaj ofertę"
+            if (adminLinkElement) adminLinkElement.style.display = 'none'; // Hide "Panel Admina"
+        }
+        if (userInfoAdminDiv) { // For admin.html (user should be redirected anyway)
+            userInfoAdminDiv.innerHTML = '';
+        }
+    }
+}
+
+function checkAuth() {
+    const currentUser = getCurrentUser();
+    // Get current page filename, default to 'index.html' if path is '/' or empty
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html'; 
+
+    // If trying to access admin.html
+    if (currentPage === 'admin.html') {
+        if (!currentUser || !currentUser.isAdmin) {
+            window.location.href = 'index.html'; // Redirect to index, login will be prompted there if needed
+            return false; // Stop further script execution
+        }
+    }
+
+    // If logged in and on the (now obsolete) login.html, redirect to index.html
+    if (currentUser && currentPage === 'login.html') {
+        window.location.href = 'index.html';
+        return false; // Stop further script execution
+    }
+    
+    // For all pages (including index.html, whether logged in or not), update the UI.
+    // displayUserInfo will handle showing login button or user info.
+    displayUserInfo();
+    return true; 
+}
+
+// --- END AUTHENTICATION AND USER MANAGEMENT ---
+
+
 // Dane nieruchomości - wczytywane z localStorage lub domyślne
 let properties = [];
 
@@ -371,8 +481,86 @@ function searchProperties() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    const authPassed = checkAuth(); // Perform auth check first
+    if (!authPassed) return; // If auth check redirects, stop further processing
+
+    // Handle login form submission (now in a modal on index.html)
+    const loginFormInModal = document.getElementById('loginFormInModal'); // ID of form in the new modal
+    if (loginFormInModal) {
+        loginFormInModal.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            const user = login(username, password);
+            const errorMessageDiv = document.getElementById('loginModalErrorMessage'); // Error message div in modal
+            
+            if (user) {
+                if(errorMessageDiv) errorMessageDiv.textContent = '';
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) loginModal.style.display = 'none'; // Close modal
+                displayUserInfo(); // Refresh header UI
+                // No redirect needed if already on index.html, UI updates handle it.
+            } else {
+                if(errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
+            }
+        });
+    }
+
+    // Logic for the old login.html page (can be removed if login.html is deleted)
+    const oldLoginForm = document.getElementById('loginForm'); // This is the ID from the original login.html
+    if (oldLoginForm && window.location.pathname.endsWith('login.html')) { // Only run if on login.html
+        oldLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            const user = login(username, password);
+            const errorMessageDiv = document.getElementById('loginErrorMessage');
+            if (user) {
+                if(errorMessageDiv) errorMessageDiv.textContent = '';
+                window.location.href = 'index.html'; 
+            } else {
+                if(errorMessageDiv) errorMessageDiv.textContent = 'Nieprawidłowa nazwa użytkownika lub hasło.';
+            }
+        });
+    }
+
+    // Handle admin page logic on admin.html
+    const adminPanelContainer = document.getElementById('adminPanelContainer');
+    const accessDeniedMessage = document.getElementById('accessDeniedMessage');
+    const userListTableBody = document.getElementById('userListTableBody');
+
+    if (window.location.pathname.endsWith('admin.html')) {
+        const currentUser = getCurrentUser();
+        if (currentUser && currentUser.isAdmin) {
+            if (adminPanelContainer) adminPanelContainer.style.display = 'block';
+            if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+            
+            if (userListTableBody) {
+                const allUsers = getAllUsers();
+                userListTableBody.innerHTML = ''; // Clear existing rows
+                allUsers.forEach(user => {
+                    const row = userListTableBody.insertRow();
+                    row.insertCell().textContent = user.username;
+                    const roleCell = row.insertCell();
+                    roleCell.textContent = user.isAdmin ? 'Administrator' : 'Użytkownik';
+                    roleCell.className = user.isAdmin ? 'role-admin' : 'role-user';
+                    row.insertCell().textContent = user.id;
+                });
+            }
+        } else {
+            if (adminPanelContainer) adminPanelContainer.style.display = 'none';
+            if (accessDeniedMessage) accessDeniedMessage.style.display = 'block';
+            // Optional: redirect to login if not admin, handled by checkAuth already
+            // if (!currentUser) window.location.href = 'login.html';
+        }
+    }
+
+
     // Wczytaj nieruchomości z localStorage lub użyj domyślnych
-    const storedProperties = localStorage.getItem('propertyListings');
+    // This part only runs if on a page that needs properties (e.g., index.html)
+    const propertyBoardElement = document.getElementById('propertyBoard');
+    if (propertyBoardElement) { // Check if propertyBoard exists on the current page
+        const storedProperties = localStorage.getItem('propertyListings');
     if (storedProperties) {
         try {
             properties = JSON.parse(storedProperties);
@@ -391,31 +579,41 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('propertyListings', JSON.stringify(properties));
     }
 
-    // Wyświetl wszystkie nieruchomości na start
-    displayProperties(properties);
+        // Wyświetl wszystkie nieruchomości na start
+        displayProperties(properties);
+    }
     
     // Ustaw minimalną datę dla pola wyboru daty wygaśnięcia
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('propertyExpiry').min = today;
+    const propertyExpiryInput = document.getElementById('propertyExpiry');
+    if (propertyExpiryInput) {
+        const today = new Date().toISOString().split('T')[0];
+        propertyExpiryInput.min = today;
+    }
 });
 
-// Obsługa modala
-addNoticeBtn.addEventListener('click', () => {
-    propertyModal.style.display = 'block';
-});
+// Obsługa modala - ensure these elements exist before adding listeners
+if (addNoticeBtn) {
+    addNoticeBtn.addEventListener('click', () => {
+        propertyModal.style.display = 'block';
+    });
+}
 
-closeModal.addEventListener('click', () => {
-    propertyModal.style.display = 'none';
-});
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        propertyModal.style.display = 'none';
+    });
+}
 
 window.addEventListener('click', (e) => {
-    if (e.target === propertyModal) {
+    if (propertyModal && e.target === propertyModal) {
         propertyModal.style.display = 'none';
     }
 });
 
-// Obsługa formularza
-propertyForm.addEventListener('submit', addNewProperty);
+// Obsługa formularza - ensure this element exists
+if (propertyForm) {
+    propertyForm.addEventListener('submit', addNewProperty);
+}
 
 // Obsługa wyszukiwania
 searchBtn.addEventListener('click', searchProperties);
@@ -425,21 +623,18 @@ searchInput.addEventListener('keyup', (e) => {
     }
 });
 
-// Obsługa kategorii
-categoryLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        // Usuń klasę active ze wszystkich linków
-        categoryLinks.forEach(cat => cat.classList.remove('active'));
-        
-        // Dodaj klasę active do klikniętego linku
-        link.classList.add('active');
-        
-        // Zastosuj filtry
-        applyFilters();
+// Obsługa kategorii - ensure these elements exist
+if (categoryLinks && categoryLinks.length > 0) {
+    categoryLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            categoryLinks.forEach(cat => cat.classList.remove('active'));
+            link.classList.add('active');
+            applyFilters();
+        });
     });
-});
+}
 
-// Obsługa filtrów
-propertyTypeFilter.addEventListener('change', applyFilters);
-priceRangeFilter.addEventListener('change', applyFilters);
-roomCountFilter.addEventListener('change', applyFilters);
+// Obsługa filtrów - ensure these elements exist
+if (propertyTypeFilter) propertyTypeFilter.addEventListener('change', applyFilters);
+if (priceRangeFilter) priceRangeFilter.addEventListener('change', applyFilters);
+if (roomCountFilter) roomCountFilter.addEventListener('change', applyFilters);

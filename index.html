@@ -11,7 +11,13 @@
     <header>
         <div class="container">
             <h1><i class="fas fa-home"></i> Sprzedam Bezpośrednio</h1>
-            <button id="addNoticeBtn" class="btn btn-primary">Dodaj ofertę</button>
+            <div class="header-actions">
+                <div id="userInfo" class="user-info-header">
+                    <!-- User info (Welcome, [username]! Logout) will be populated by JavaScript -->
+                </div>
+                <button id="addNoticeBtn" class="btn btn-primary">Dodaj ofertę</button>
+                <a href="admin.html" id="adminLink" class="btn btn-secondary" style="display:none; margin-left: 10px;">Panel Admina</a>
+            </div>
         </div>
     </header>
 
@@ -78,7 +84,7 @@
     <!-- Modal do dodawania ofert -->
     <div id="propertyModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" onclick="document.getElementById('propertyModal').style.display='none'">&times;</span>
             <h2>Dodaj nową ofertę nieruchomości</h2>
             <form id="propertyForm">
                 <div class="form-group">
@@ -159,6 +165,27 @@
             <p>&copy; 2025 Portal Nieruchomości - Wszystkie prawa zastrzeżone</p>
         </div>
     </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
+            <h2><i class="fas fa-sign-in-alt"></i> Logowanie</h2>
+            <p style="text-align: center; margin-bottom: 20px;">Zaloguj się, aby dodać ofertę lub zarządzać kontem.</p>
+            <form id="loginFormInModal" class="login-form">
+                <div class="form-group">
+                    <label for="modalUsername">Nazwa użytkownika:</label>
+                    <input type="text" id="modalUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalPassword">Hasło:</label>
+                    <input type="password" id="modalPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Zaloguj się</button>
+                <div id="loginModalErrorMessage" style="color: #e74c3c; margin-top: 15px; font-size: 14px; min-height: 20px; text-align:center;"></div>
+            </form>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
