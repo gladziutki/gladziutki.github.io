@@ -1,9 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const propertyDetailsContainer = document.getElementById('propertyDetailsContainer');
+    const commentsListContainer = document.getElementById('commentsListContainer');
+    const addCommentFormContainer = document.getElementById('addCommentFormContainer');
+    const commentForm = document.getElementById('commentForm');
+    const commentText = document.getElementById('commentText');
+
     if (!propertyDetailsContainer) {
         console.error('Element propertyDetailsContainer not found!');
         return;
     }
+    if (!commentsListContainer || !addCommentFormContainer || !commentForm || !commentText) {
+        console.error('One or more comment-related elements are missing from the DOM!');
+        // We might not want to return entirely, but comments functionality will be broken.
+    }
+
 
     // Helper function to safely set text content
     const setText = (id, text) => {
@@ -121,6 +131,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setText('detailsContent', property.content);
         setText('detailsContact', property.contact);
+
+        // --- BEGIN COMMENTS LOGIC ---
+        const currentUser = getCurrentUser(); // From script.js
+
+        function displayComments() {
+            if (!commentsListContainer) return;
+            commentsListContainer.innerHTML = ''; // Clear existing comments
+            const propertyComments = getCommentsForProperty(propertyId); // From script.js
+
+            if (propertyComments.length === 0) {
+                commentsListContainer.innerHTML = '<p class="no-comments">Brak komentarzy dla tej oferty.</p>';
+                return;
+            }
+
+            propertyComments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment-item';
+                
+                const commentDate = new Date(comment.timestamp);
+                const formattedDate = `${commentDate.toLocaleDateString('pl-PL')} ${commentDate.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`;
+
+                commentElement.innerHTML = `
+                    <p>${comment.text}</p>
+                    <div class="comment-meta">
+                        Dodane przez: <strong>${comment.username}</strong> w dniu ${formattedDate}
+                    </div>
+                `;
+                commentsListContainer.appendChild(commentElement);
+            });
+        }
+
+        if (currentUser && addCommentFormContainer) {
+            addCommentFormContainer.style.display = 'block';
+        }
+
+        if (commentForm) {
+            commentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!currentUser) {
+                    alert('Musisz być zalogowany, aby dodać komentarz.');
+                    // Optionally, redirect to login or show login modal
+                    return;
+                }
+                const text = commentText.value.trim();
+                if (text) {
+                    addComment(propertyId, currentUser.id, currentUser.username, text); // From script.js
+                    commentText.value = ''; // Clear textarea
+                    displayComments(); // Refresh comments list
+                }
+            });
+        }
+        
+        displayComments(); // Initial display of comments
+        // --- END COMMENTS LOGIC ---
 
     } else {
         document.title = 'Nie znaleziono - Portal Nieruchomości';

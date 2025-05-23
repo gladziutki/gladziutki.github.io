@@ -107,6 +107,51 @@ function checkAuth() {
 
 // --- END AUTHENTICATION AND USER MANAGEMENT ---
 
+// --- BEGIN COMMENT MANAGEMENT ---
+let comments = [];
+const COMMENTS_STORAGE_KEY = 'propertyComments';
+
+function loadComments() {
+    const storedComments = localStorage.getItem(COMMENTS_STORAGE_KEY);
+    if (storedComments) {
+        try {
+            comments = JSON.parse(storedComments);
+        } catch (e) {
+            console.error("Error parsing comments from localStorage:", e);
+            comments = []; // Fallback to empty array
+        }
+    } else {
+        comments = []; // Initialize if nothing in storage
+    }
+}
+
+function saveComments() {
+    localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(comments));
+}
+
+function addComment(propertyId, userId, username, text) {
+    const newComment = {
+        commentId: `comment_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`, // Unique ID
+        propertyId: parseInt(propertyId), // Ensure propertyId is a number
+        userId: parseInt(userId),         // Ensure userId is a number
+        username: username,
+        text: text,
+        timestamp: new Date().toISOString()
+    };
+    comments.push(newComment);
+    saveComments();
+    return newComment;
+}
+
+function getCommentsForProperty(propertyId) {
+    const numPropertyId = parseInt(propertyId); // Ensure comparison with number
+    return comments
+        .filter(comment => comment.propertyId === numPropertyId)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort newest first
+}
+
+// --- END COMMENT MANAGEMENT ---
+
 
 // Dane nieruchomości - wczytywane z localStorage lub domyślne
 let properties = [];
@@ -483,6 +528,8 @@ function searchProperties() {
 document.addEventListener('DOMContentLoaded', () => {
     const authPassed = checkAuth(); // Perform auth check first
     if (!authPassed) return; // If auth check redirects, stop further processing
+
+    loadComments(); // Load comments on DOMContentLoaded
 
     // Handle login form submission (now in a modal on index.html)
     const loginFormInModal = document.getElementById('loginFormInModal'); // ID of form in the new modal

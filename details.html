@@ -105,6 +105,60 @@
             color: #6c757d;
             font-style: italic;
         }
+
+        /* Styles for comments section */
+        .comments-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .comments-section h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        #commentsListContainer .comment-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+        #commentsListContainer .comment-item p {
+            margin: 0 0 8px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        #commentsListContainer .comment-item .comment-meta {
+            font-size: 0.9em;
+            color: #777;
+        }
+        #commentsListContainer .comment-item .comment-meta strong {
+            color: #00857E;
+        }
+        #addCommentFormContainer h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        #commentForm textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            min-height: 80px;
+            box-sizing: border-box; /* Ensures padding doesn't add to width */
+        }
+        #commentForm button {
+            padding: 10px 20px;
+            font-size: 15px;
+        }
+        .no-comments {
+            color: #777;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -155,6 +209,23 @@
                     (Miejsce na dodatkowe informacje o nieruchomości)
                 </div>
             </div>
+
+            <!-- Comments Section -->
+            <div class="details-section comments-section">
+                <h2>Komentarze</h2>
+                <div id="commentsListContainer">
+                    <!-- Komentarze będą dynamicznie wstawiane tutaj -->
+                    <p class="no-comments">Brak komentarzy.</p>
+                </div>
+                <div id="addCommentFormContainer" style="display: none;"> <!-- Początkowo ukryty -->
+                    <h3>Dodaj swój komentarz</h3>
+                    <form id="commentForm">
+                        <textarea id="commentText" name="commentText" rows="4" placeholder="Wpisz treść komentarza..." required></textarea>
+                        <button type="submit" class="btn btn-primary">Opublikuj</button>
+                    </form>
+                </div>
+            </div>
+            <!-- End Comments Section -->
             
             <div class="back-link-container">
                 <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Powrót do listy ofert</a>
@@ -168,6 +239,7 @@
         </div>
     </footer>
 
+    <script src="script.js"></script>
     <script src="details.js"></script>
 </body>
 </html>
