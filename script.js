@@ -1,5 +1,7 @@
-// Dane nieruchomości - w rzeczywistej aplikacji pobierane z bazy danych
-let properties = [
+// Dane nieruchomości - wczytywane z localStorage lub domyślne
+let properties = [];
+
+const defaultProperties = [
     {
         id: 1,
         title: "Mieszkanie 3-pokojowe w centrum Warszawy",
@@ -230,9 +232,16 @@ function addNewProperty(e) {
         return propType === 'mieszkanie' ? "images/Mieszkanie.jpg" : "images/Dom.jpg";
     };
 
+    const getNextId = () => {
+        if (properties.length === 0) {
+            return 1;
+        }
+        return Math.max(...properties.map(p => p.id)) + 1;
+    };
+
     const createPropertyObject = (imageUrl) => {
         return {
-            id: properties.length + 1,
+            id: getNextId(),
             title,
             category,
             propertyType, // This is the propertyType from the form
@@ -250,6 +259,7 @@ function addNewProperty(e) {
 
     const finalizePropertyAddition = (property) => {
         properties.unshift(property); // Dodaj na początek tablicy
+        localStorage.setItem('propertyListings', JSON.stringify(properties)); // Zapisz w localStorage
         applyFilters();
         propertyModal.style.display = 'none';
         propertyForm.reset();
@@ -355,6 +365,26 @@ function searchProperties() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Wczytaj nieruchomości z localStorage lub użyj domyślnych
+    const storedProperties = localStorage.getItem('propertyListings');
+    if (storedProperties) {
+        try {
+            properties = JSON.parse(storedProperties);
+            // Ensure IDs are correctly set if we load from localStorage, especially if it was empty or corrupted
+            if (!properties || properties.length === 0) {
+                properties = [...defaultProperties];
+                localStorage.setItem('propertyListings', JSON.stringify(properties));
+            }
+        } catch (e) {
+            console.error("Error parsing properties from localStorage:", e);
+            properties = [...defaultProperties]; // Fallback to default
+            localStorage.setItem('propertyListings', JSON.stringify(properties));
+        }
+    } else {
+        properties = [...defaultProperties];
+        localStorage.setItem('propertyListings', JSON.stringify(properties));
+    }
+
     // Wyświetl wszystkie nieruchomości na start
     displayProperties(properties);
     
