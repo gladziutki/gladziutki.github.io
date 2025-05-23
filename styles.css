@@ -194,6 +194,14 @@ main {
     border: 1px solid #e0e0e0; /* Dodano subtelną krawędź */
 }
 
+.property-image {
+    width: 100%; /* Make image responsive */
+    height: 200px; /* Fixed height */
+    object-fit: cover; /* Cover the area, cropping if necessary */
+    border-radius: 8px 8px 0 0; /* Rounded corners at the top, matching the card */
+    margin-bottom: 15px; /* Space below the image */
+}
+
 .property:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.1); /* Zmieniony cień przy hover */

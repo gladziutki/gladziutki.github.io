@@ -12,7 +12,8 @@ let properties = [
         content: "Piękne mieszkanie w zabytkowej kamienicy po pełnym remoncie. Wysokie sufity, duże okna, nowoczesne wykończenie. W pobliżu metro, sklepy i restauracje.",
         contact: "anna.kowalska@email.pl | tel. 123-456-789",
         date: "2025-05-18",
-        expiry: "2025-07-18"
+        expiry: "2025-07-18",
+        imageUrl: "images/Mieszkanie.jpg"
     },
     {
         id: 2,
@@ -26,7 +27,8 @@ let properties = [
         content: "Przestronny dom z ogrodem 800m². Doskonały dla rodziny. Garaż na 2 samochody, taras, nowoczesna kuchnia. Cisza i spokój przy dobrej komunikacji z centrum.",
         contact: "sprzedaz@domkrakow.pl | tel. 987-654-321",
         date: "2025-05-19",
-        expiry: "2025-08-19"
+        expiry: "2025-08-19",
+        imageUrl: "images/Dom.jpg"
     },
     {
         id: 3,
@@ -40,7 +42,8 @@ let properties = [
         content: "Przytulna kawalerka w doskonałej lokalizacji. Umeblowana, z aneksem kuchennym. Blisko Politechniki Gdańskiej i centrum handlowego.",
         contact: "wynajem.gdansk@email.pl | tel. 555-123-456",
         date: "2025-05-20",
-        expiry: "2025-06-20"
+        expiry: "2025-06-20",
+        imageUrl: "images/Mieszkanie.jpg"
     },
     {
         id: 4,
@@ -54,7 +57,8 @@ let properties = [
         content: "Działka budowlana w prestiżowej dzielnicy. Media na granicy działki. Idealna pod dom jednorodzinny. Cisza, zieleń, dobra komunikacja z Warszawą.",
         contact: "nieruchomosci@konstancin.pl | tel. 333-222-111",
         date: "2025-05-17",
-        expiry: "2025-09-17"
+        expiry: "2025-09-17",
+        imageUrl: "images/Dom.jpg"
     },
     {
         id: 5,
@@ -68,7 +72,8 @@ let properties = [
         content: "Reprezentacyjny lokal w centrum miasta. Idealny na biuro, salon kosmetyczny lub sklep. Duże witryny, klimatyzacja, parking w pobliżu.",
         contact: "biuro@wroclaw-lokale.pl | tel. 444-555-666",
         date: "2025-05-21",
-        expiry: "2025-07-21"
+        expiry: "2025-07-21",
+        imageUrl: "images/Dom.jpg"
     },
     {
         id: 6,
@@ -82,7 +87,8 @@ let properties = [
         content: "Słoneczne mieszkanie z balkonem w nowym budownictwie. Umeblowane, z miejscem parkingowym. Blisko komunikacji miejskiej i sklepów.",
         contact: "mieszkanie.poznan@email.pl | tel. 111-222-333",
         date: "2025-05-16",
-        expiry: "2025-06-16"
+        expiry: "2025-06-16",
+        imageUrl: "images/Mieszkanie.jpg"
     }
 ];
 
@@ -128,6 +134,7 @@ function displayProperties(propertiesArray) {
             : `${property.price.toLocaleString('pl-PL')} zł`;
         
         propertyElement.innerHTML = `
+            <img src="${property.imageUrl}" alt="${property.title}" class="property-image">
             <div class="property-header">
                 <h3 class="property-title">${property.title}</h3>
                 <span class="property-category ${property.category}">${getCategoryName(property.category)}</span>
@@ -217,35 +224,49 @@ function addNewProperty(e) {
     const content = document.getElementById('propertyContent').value;
     const contact = document.getElementById('propertyContact').value;
     const expiry = document.getElementById('propertyExpiry').value;
-    
-    const newProperty = {
-        id: properties.length + 1,
-        title,
-        category,
-        propertyType,
-        price,
-        area,
-        rooms,
-        location,
-        content,
-        contact,
-        date: new Date().toISOString().split('T')[0],
-        expiry
+    const imageFile = document.getElementById('propertyImage').files[0];
+
+    const getDefaultImageUrl = (propType) => {
+        return propType === 'mieszkanie' ? "images/Mieszkanie.jpg" : "images/Dom.jpg";
     };
-    
-    properties.unshift(newProperty); // Dodaj na początek tablicy
-    
-    // Odśwież listę nieruchomości
-    applyFilters();
-    
-    // Zamknij modal
-    propertyModal.style.display = 'none';
-    
-    // Resetuj formularz
-    propertyForm.reset();
-    
-    // Komunikat o powodzeniu
-    alert('Oferta została dodana pomyślnie!');
+
+    const createPropertyObject = (imageUrl) => {
+        return {
+            id: properties.length + 1,
+            title,
+            category,
+            propertyType, // This is the propertyType from the form
+            price,
+            area,
+            rooms,
+            location,
+            content,
+            contact,
+            date: new Date().toISOString().split('T')[0],
+            expiry,
+            imageUrl: imageUrl
+        };
+    };
+
+    const finalizePropertyAddition = (property) => {
+        properties.unshift(property); // Dodaj na początek tablicy
+        applyFilters();
+        propertyModal.style.display = 'none';
+        propertyForm.reset();
+        alert('Oferta została dodana pomyślnie!');
+    };
+
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const newProperty = createPropertyObject(e.target.result); // Use uploaded image
+            finalizePropertyAddition(newProperty);
+        }
+        reader.readAsDataURL(imageFile);
+    } else {
+        const newProperty = createPropertyObject(getDefaultImageUrl(propertyType)); // Use default based on propertyType
+        finalizePropertyAddition(newProperty);
+    }
 }
 
 // Filtrowanie nieruchomości według kategorii
