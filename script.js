@@ -196,7 +196,7 @@ const defaultProperties = [
         contact: "anna.kowalska@email.pl | tel. 123-456-789",
         date: "2025-05-18",
         expiry: "2025-07-18",
-        imageUrl: "images/Mieszkanie.jpg"
+        imageUrl: "images/mieszkanie2.jpg"
     },
     {
         id: 2,
@@ -211,7 +211,7 @@ const defaultProperties = [
         contact: "sprzedaz@domkrakow.pl | tel. 987-654-321",
         date: "2025-05-19",
         expiry: "2025-08-19",
-        imageUrl: "images/Dom.jpg"
+        imageUrl: "images/dom2.jpg"
     },
     {
         id: 3,
@@ -226,7 +226,7 @@ const defaultProperties = [
         contact: "wynajem.gdansk@email.pl | tel. 555-123-456",
         date: "2025-05-20",
         expiry: "2025-06-20",
-        imageUrl: "images/Mieszkanie.jpg"
+        imageUrl: "images/mieszkanie.jpg"
     },
     {
         id: 4,
@@ -241,7 +241,7 @@ const defaultProperties = [
         contact: "nieruchomosci@konstancin.pl | tel. 333-222-111",
         date: "2025-05-17",
         expiry: "2025-09-17",
-        imageUrl: "images/Dom.jpg"
+        imageUrl: "images/dom.jpg"
     },
     {
         id: 5,
@@ -256,7 +256,7 @@ const defaultProperties = [
         contact: "biuro@wroclaw-lokale.pl | tel. 444-555-666",
         date: "2025-05-21",
         expiry: "2025-07-21",
-        imageUrl: "images/Dom.jpg"
+        imageUrl: "images/dom.jpg"
     },
     {
         id: 6,
@@ -271,7 +271,82 @@ const defaultProperties = [
         contact: "mieszkanie.poznan@email.pl | tel. 111-222-333",
         date: "2025-05-16",
         expiry: "2025-06-16",
-        imageUrl: "images/Mieszkanie.jpg"
+        imageUrl: "images/mieszkanie2.jpg"
+    },
+    {
+        id: 7,
+        title: "Nowoczesny apartament z tarasem - Warszawa Mokotów",
+        category: "sprzedaz",
+        propertyType: "mieszkanie",
+        price: 1250000,
+        area: 85,
+        rooms: 4,
+        location: "Warszawa, Mokotów",
+        content: "Luksusowy apartament w nowym budynku z dużym tarasem i widokiem na park. Wysoki standard wykończenia, inteligentny dom, 2 miejsca parkingowe.",
+        contact: "premium@apartamenty.waw.pl | tel. 777-888-999",
+        date: "2025-05-22",
+        expiry: "2025-08-22",
+        imageUrl: "images/mieszkanie.jpg"
+    },
+    {
+        id: 8,
+        title: "Urokliwy dom na wsi - Mazury",
+        category: "sprzedaz",
+        propertyType: "dom",
+        price: 680000,
+        area: 120,
+        rooms: 4,
+        location: "Okolice Giżycka, Mazury",
+        content: "Piękny dom z bali w sercu Mazur, blisko jeziora. Duża działka, kominek, idealne miejsce na wypoczynek lub stałe zamieszkanie.",
+        contact: "mazurskidom@email.com | tel. 600-100-200",
+        date: "2025-05-23",
+        expiry: "2025-09-23",
+        imageUrl: "images/dom.jpg"
+    },
+    {
+        id: 9,
+        title: "Mieszkanie dla studenta - Kraków",
+        category: "wynajem",
+        propertyType: "mieszkanie",
+        price: 1800,
+        area: 35,
+        rooms: 2,
+        location: "Kraków, Krowodrza",
+        content: "Funkcjonalne mieszkanie dwupokojowe, idealne dla studentów. Blisko uczelni i komunikacji miejskiej. Umeblowane i wyposażone.",
+        contact: "student.krakow@email.pl | tel. 505-606-707",
+        date: "2025-05-24",
+        expiry: "2025-07-24",
+        imageUrl: "images/mieszkanie2.jpg"
+    },
+    {
+        id: 10,
+        title: "Przestronne biuro do wynajęcia - Poznań Centrum",
+        category: "wynajem",
+        propertyType: "lokal",
+        price: 6500,
+        area: 150,
+        rooms: 0,
+        location: "Poznań, Centrum",
+        content: "Duży lokal biurowy w nowoczesnym biurowcu klasy A. Recepcja, sale konferencyjne, możliwość adaptacji przestrzeni. Prestiżowa lokalizacja.",
+        contact: "biura.poznan@office-space.pl | tel. 800-900-100",
+        date: "2025-05-25",
+        expiry: "2025-10-25",
+        imageUrl: "images/dom2.jpg" 
+    },
+    {
+        id: 11,
+        title: "Garaż murowany - Wrocław Krzyki",
+        category: "sprzedaz",
+        propertyType: "garaz",
+        price: 85000,
+        area: 18,
+        rooms: 0,
+        location: "Wrocław, Krzyki",
+        content: "Murowany garaż w ciągu garażowym na strzeżonym osiedlu. Suchy, z prądem. Doskonała inwestycja lub miejsce na samochód.",
+        contact: "garaze.wroclaw@auto.pl | tel. 700-800-900",
+        date: "2025-05-26",
+        expiry: "2025-11-26",
+        imageUrl: "images/dom.jpg" 
     }
 ];
 
